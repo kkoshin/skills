@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ai-proxy",
+  "main": "worker-proxy.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"]
+}
