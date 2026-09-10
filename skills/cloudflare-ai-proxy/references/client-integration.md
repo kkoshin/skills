@@ -98,3 +98,21 @@ curl -X POST https://<your-url>/v1/chat/completions \
 ```bash
 -d '{"model": "model-a:provider-b", ...}'
 ```
+
+### 使用 haiku 模型（默认走 luna）
+
+```bash
+# 不指定渠道，自动路由到 luna
+curl -X POST https://<your-url>/v1/messages \
+  -H "Authorization: Bearer your-secret-token" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "haiku",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "hi"}]
+  }'
+
+# 显式指定 luna 渠道（效果相同）
+-d '{"model": "haiku:luna", ...}'
+```

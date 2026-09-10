@@ -140,3 +140,31 @@ const DEFAULT_FALLBACK = {
 ```
 
 部署后，客户端传 `qwen-max`、`Qwen-Max`、`qwen-max:aliyun` 都能正确路由。
+
+## 配置示例：luna 渠道 + haiku 默认路由
+
+模板已内置 `luna` 渠道和 `haiku` 模型配置：
+
+```js
+// 渠道
+const PROVIDERS = {
+  // ...
+  luna: { baseUrl: "https://api.luna.example.com" },
+};
+
+// 模型
+const MODELS = {
+  // ...
+  haiku: [
+    { provider_id: "luna", auth_token: "sk-your-luna-key" },
+  ],
+};
+
+// 兜底：haiku 默认走 luna
+const DEFAULT_FALLBACK = {
+  // ...
+  haiku: "haiku:luna",
+};
+```
+
+客户端传 `haiku`（不带渠道后缀）时，自动路由到 `luna`。如需显式指定其他渠道，在 `MODELS["haiku"]` 中添加对应条目，并在 `DEFAULT_FALLBACK` 中调整即可。

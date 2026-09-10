@@ -26,6 +26,7 @@ const SECRET_TOKEN = "your-secret-token";
 const PROVIDERS = {
   "provider-a": { baseUrl: "https://api.example-a.com" },
   "provider-b": { baseUrl: "https://api.example-b.com" },
+  luna: { baseUrl: "https://api.luna.example.com" },
   // 添加新渠道：provider_id: { baseUrl: "https://..." }
 };
 
@@ -41,6 +42,9 @@ const MODELS = {
   "model-b": [
     { provider_id: "provider-b", auth_token: "sk-your-provider-b-key" },
   ],
+  haiku: [
+    { provider_id: "luna", auth_token: "sk-your-luna-key" },
+  ],
 };
 
 /**
@@ -54,6 +58,7 @@ const MODELS = {
 const DEFAULT_FALLBACK = {
   "model-a": "model-a:provider-a",
   "model-b": "model-b:provider-b",
+  haiku: "haiku:luna",
   // 别名示例：大写名 → 规范名:渠道
   "Model-A": "model-a:provider-a",
 };
