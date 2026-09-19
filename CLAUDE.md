@@ -15,21 +15,24 @@ Every skill follows this structure:
 - `SKILL.md` — entry point. Must start with frontmatter `name` + `description` (the description is what Claude uses to decide when to load the skill, so keep it specific and trigger-rich). The body is the workflow, written as numbered steps that reference the files below rather than inlining everything.
 - `references/*.md` — deeper docs linked from `SKILL.md` (configuration, deployment, client-integration, troubleshooting). Split by concern; `SKILL.md` stays scannable.
 - `scripts/*.sh` — executable helpers, runnable standalone with `bash <skill-dir>/scripts/<name>.sh`. They `set -euo pipefail` and validate their own preconditions (deps present, files present, args provided).
-- `templates/*` — files the user copies into their own project (`worker-proxy.js`, `wrangler.jsonc`). These contain **placeholders, never real secrets**.
+- `templates/*` — files the user copies into their own project (a multi-module Worker under `src/`, plus `wrangler.toml`, `package.json`, `test/`). These contain **placeholders, never real secrets**.
 
 ## The cloudflare-ai-proxy skill
 
-Deploys a Cloudflare Worker that proxies AI API requests to multiple upstream providers behind a single secret-token-authenticated endpoint. Core mechanics, all defined in `templates/worker-proxy.js`:
+Deploys a Cloudflare Worker that puts multiple upstream providers behind one **Anthropic Messages** endpoint with secret-token auth. The template is a multi-module Worker under `templates/src/`, mirroring the layout of the `anthropic-api` repo it was derived from; all configuration lives in `templates/wrangler.toml` `[vars]` and is read via `env`.
 
-- **Routing via the `model` field**: `"model:provider"` picks a channel explicitly; bare `"model"` falls back to `DEFAULT_FALLBACK`.
-- **Aliases**: a `DEFAULT_FALLBACK` key not present in `MODELS` is an alias (e.g. `Model-A` → `model-a:provider-a`). `resolveRoute` lowercases the model name and `proxyRequest` rewrites `body.model` to the canonical name before forwarding — upstream providers are case-sensitive, so this rewrite is load-bearing.
-- **`/v1/models`** returns a payload that carries both OpenAI and Anthropic fields so either client format can parse it.
-- Requests **must** hit `/v1/messages` (Anthropic) or `/v1/chat/completions` (OpenAI) — hitting `/` passes through to the upstream root and returns its homepage. This is the single most common failure and is documented in `references/troubleshooting.md`.
+- **Downstream is Anthropic-only.** `POST /v1/messages` is the sole inference route; `/v1/chat/completions` returns **404**. OpenAI compatibility exists only as an *upstream* protocol.
+- **Routing via the `model` field**: `"model:provider"` picks a channel explicitly; bare `"model"` falls back to `DEFAULT_FALLBACK`. Array order in `MODELS` never triggers failover.
+- **Protocol conversion**: a channel with `protocol = "openai"` gets its Anthropic request converted to OpenAI Chat Completions and its response/SSE converted back (`src/protocol.js`, `src/streaming.js`). `protocol = "anthropic"` (default) passes through.
+- **Aliases** live in `MODEL_ALIASES` — a separate table from `DEFAULT_FALLBACK`, with exactly one `*` allowed per key. Exact beats glob; longer glob pattern beats shorter; ties go to declaration order. The template ships **no** built-in aliases, so an unconfigured `MODEL_ALIASES` means Claude model names 400.
+- **The model name is lowercased before being sent upstream**, so an upstream whose model ids are case-sensitive cannot be expressed — a real limitation, documented rather than hidden.
+- **`/v1/models`** lists `MODELS` keys plus `DEFAULT_FALLBACK` keys absent from `MODELS`. `MODEL_ALIASES` entries are deliberately **not** listed.
+- **Config is validated per request, not at deploy time** — a bad `token_ref` deploys fine and only 500s when a request routes to that model. Errors are 400/403/500/502 and 500s never leak variable values.
 
-The shell scripts (`register-subdomain.sh`, `pull-remote.sh`) read the wrangler OAuth token and Account ID from the wrangler config file (`~/Library/Preferences/.wrangler/config/default.toml` on macOS, with Linux fallbacks) and call the Cloudflare API directly via `curl` + `python3` for JSON parsing — they do not shell out to `wrangler` for those calls.
+The shell scripts read the wrangler OAuth token and Account ID from the wrangler config file (`~/Library/Preferences/.wrangler/config/default.toml` on macOS, with Linux fallbacks) and call the Cloudflare API directly via `curl` + `python3` for JSON parsing — they do not shell out to `wrangler` for those calls.
 
 ## Conventions when editing
 
 - Keep docs in the existing language (Chinese for this repo's prose).
 - Never hardcode real API keys, worker names, or subdomains in templates or `SKILL.md` — always placeholders. The `Do not` section at the bottom of `SKILL.md` states this explicitly.
-- When changing `worker-proxy.js` behavior, update `SKILL.md`, `references/configuration.md`, and `references/troubleshooting.md` together — the alias-rewrite contract in particular is described in all three.
+- When changing template behavior (`templates/src/*`), update `SKILL.md`, `references/configuration.md`, and `references/troubleshooting.md` together — the `[vars]` contract and the alias-precedence rules in particular are described in all three.

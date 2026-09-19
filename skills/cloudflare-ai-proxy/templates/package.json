@@ -1,0 +1,11 @@
+{
+  "name": "cloudflare-ai-proxy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "for f in src/*.js; do node --check \"$f\" || exit 1; done && npm test",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
+}

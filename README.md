@@ -8,7 +8,7 @@
 
 | Skill | 说明 |
 |-------|------|
-| [cloudflare-ai-proxy](./skills/cloudflare-ai-proxy) | 部署一个 Cloudflare Worker 作为 AI API 请求中转代理：一个端点统一转发到多个上游 AI 提供商（DeepSeek 等），支持暗号鉴权、模型别名、流式响应，以及 OpenAI / Anthropic 兼容的模型列表。 |
+| [cloudflare-ai-proxy](./skills/cloudflare-ai-proxy) | 部署一个 Cloudflare Worker 作为 AI API 请求中转代理：一个 Anthropic Messages 端点统一转发到多个上游 AI 提供商，支持暗号鉴权、按 `model` / `model:provider` 路由、模型别名，以及上游为 OpenAI 协议时的双向协议转换（含 SSE 流）。全部配置在 `wrangler.toml` 的 `[vars]`。 |
 
 ## Skill 结构
 

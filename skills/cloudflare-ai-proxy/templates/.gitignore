@@ -1,0 +1,8 @@
+# wrangler 本地状态
+.wrangler/
+
+# `wrangler dev` 会从这个文件读取本地密钥 —— 里面是真实 Key，绝不能提交
+.dev.vars*
+.env*
+
+node_modules/
