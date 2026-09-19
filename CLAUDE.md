@@ -13,9 +13,10 @@ When a skill is invoked, Claude reads its `SKILL.md` and follows the workflow de
 Every skill follows this structure:
 
 - `SKILL.md` — entry point. Must start with frontmatter `name` + `description` (the description is what Claude uses to decide when to load the skill, so keep it specific and trigger-rich). The body is the workflow, written as numbered steps that reference the files below rather than inlining everything.
+- `README.md` — per-skill README for humans (rendered on GitHub and skills.sh): what the skill does, install, structure, license. The `SKILL.md` remains the machine-facing entry point.
 - `references/*.md` — deeper docs linked from `SKILL.md` (configuration, deployment, client-integration, troubleshooting). Split by concern; `SKILL.md` stays scannable.
-- `scripts/*.sh` — executable helpers, runnable standalone with `bash <skill-dir>/scripts/<name>.sh`. They `set -euo pipefail` and validate their own preconditions (deps present, files present, args provided).
-- `templates/*` — files the user copies into their own project (a multi-module Worker under `src/`, plus `wrangler.toml`, `package.json`, `test/`). These contain **placeholders, never real secrets**.
+- `scripts/*` — executable helpers, runnable standalone (`bash <skill-dir>/scripts/<name>.sh` for `.sh`; `python3 <skill-dir>/scripts/<name>.py` for `.py`). Shell scripts `set -euo pipefail` and validate their own preconditions (deps present, files present, args provided). Python helpers are stdlib-only and read credentials from the environment, never from a file in the skill dir.
+- `templates/*` — optional; files the user copies into their own project (for cloudflare-ai-proxy: a multi-module Worker under `src/`, plus `wrangler.toml`, `package.json`, `test/`). These contain **placeholders, never real secrets**.
 
 ## The cloudflare-ai-proxy skill
 

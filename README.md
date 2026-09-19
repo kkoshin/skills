@@ -9,6 +9,7 @@
 | Skill | 说明 |
 |-------|------|
 | [cloudflare-ai-proxy](./skills/cloudflare-ai-proxy) | 部署一个 Cloudflare Worker 作为 AI API 请求中转代理：一个 Anthropic Messages 端点统一转发到多个上游 AI 提供商，支持暗号鉴权、按 `model` / `model:provider` 路由、模型别名，以及上游为 OpenAI 协议时的双向协议转换（含 SSE 流）。全部配置在 `wrangler.toml` 的 `[vars]`。 |
+| [binance-stocks](./skills/binance-stocks) | ⚠️ 查询**和交易**币安股票代币（`EQ_*`）：持仓、移动加权成本、实时行情、已实现/浮动盈亏，以及 KDJ / RSI 指标和市价建仓 / 平仓。纯 Python 标准库，无第三方依赖。**`buy` / `sell` 是真实下单、真实资金**（两步确认 + 默认 $500 单笔护栏）。 |
 
 ## Skill 结构
 
@@ -16,7 +17,7 @@
 skills/<skill-name>/
 ├── SKILL.md            # 入口：frontmatter(name+description) + 工作流
 ├── references/*.md     # 进阶文档（配置、部署、客户端对接、排错）
-├── scripts/*.sh        # 可独立运行的辅助脚本
+├── scripts/*           # 可独立运行的辅助脚本（bash / python3 均可）
 └── templates/*         # 复制到用户项目中的模板文件（占位符，非真实密钥）
 ```
 
@@ -58,5 +59,6 @@ npx skills add kkoshin/skills --skill cloudflare-ai-proxy -g -a claude-code -y
 
 1. 在 `skills/` 下新建目录，命名用 kebab-case。
 2. 写 `SKILL.md`，frontmatter 必填 `name` 和 `description`。
-3. 按需补充 `references/`、`scripts/`、`templates/`。
-4. 模板里一律用占位符，不要写入真实密钥、子域名或 Worker 名。
+3. 写 `README.md`（面向人的说明：做什么、怎么装、目录结构、License）。
+4. 按需补充 `references/`、`scripts/`、`templates/`。
+5. 模板里一律用占位符，不要写入真实密钥、子域名或 Worker 名。
