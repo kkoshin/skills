@@ -10,6 +10,7 @@
 |-------|------|
 | [cloudflare-ai-proxy](./skills/cloudflare-ai-proxy) | 部署一个 Cloudflare Worker 作为 AI API 请求中转代理：一个 Anthropic Messages 端点统一转发到多个上游 AI 提供商，支持暗号鉴权、按 `model` / `model:provider` 路由、模型别名，以及上游为 OpenAI 协议时的双向协议转换（含 SSE 流）。全部配置在 `wrangler.toml` 的 `[vars]`。 |
 | [binance-stocks](./skills/binance-stocks) | ⚠️ 查询**和交易**币安股票代币（`EQ_*`）：持仓、移动加权成本、实时行情、已实现/浮动盈亏，以及 KDJ / RSI 指标和市价建仓 / 平仓。纯 Python 标准库，无第三方依赖。**`buy` / `sell` 是真实下单、真实资金**（两步确认 + 默认 $500 单笔护栏）。 |
+| [video-playlist-iina](./skills/video-playlist-iina) | 搜索公开视频网站并创建或增量更新电视剧/电影的 IINA M3U 播放列表，支持 IINA 新窗口 1.5 倍速打开和可扩展站点适配器。 |
 
 ## Skill 结构
 
